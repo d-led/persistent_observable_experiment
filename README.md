@@ -1,15 +1,18 @@
 # Durable queues as IObservables experiment for fun
 
 ```c#
+// create a queue
 using (var queue = new PersistentQueueWrapper<WorkItem>("q1")) {
   queue.Enqueue(new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() });
 }
+// and lose it
 
+// reopen the durable queue
 using (var queue = new PersistentQueueWrapper<WorkItem>("q1")) {
  // enqueue
  queue.Enqueue(new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() });
 
- // dequeue
+ // dequeue until timed out
  queue
     .ToObservableItems(
         sleep_for: TimeSpan.FromSeconds(0.3),
