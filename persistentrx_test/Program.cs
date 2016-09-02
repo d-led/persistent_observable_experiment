@@ -15,11 +15,35 @@ namespace persistentrx_test
         {
             try
             {
+                Example();
                 Run();
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine(e);
+            }
+        }
+
+        static void Example()
+        {
+            using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+            {
+                queue.Enqueue(new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() });
+            }
+
+            using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+            {
+                queue.Enqueue(new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() });
+                queue
+                   .ToObservableItems(
+                       sleep_for: TimeSpan.FromSeconds(0.3),
+                       max_wait: TimeSpan.FromSeconds(1)
+                   )
+                   .Subscribe(
+                       x => Console.WriteLine($"{x.WorkId}"),
+                       e => Console.Error.WriteLine(e),
+                       () => Console.WriteLine("No more items")
+                   );
             }
         }
 
