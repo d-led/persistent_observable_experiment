@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
@@ -26,34 +25,35 @@ namespace persistentrx_test
 
         static void Run()
         {
-            IQueue<WorkItem> queue = new PersistentQueueWrapper<WorkItem>("q1");
-
-            // produce some in the background
-            Task.Run(() =>
+            using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
             {
-                var key_pressed = Observable
-                    .Timer(TimeSpan.FromSeconds(1))
-                    .Select(_ => Console.ReadKey());
+                // produce some in the background
+                Task.Run(() =>
+                {
+                    var key_pressed = Observable
+                        .Timer(TimeSpan.FromSeconds(1))
+                        .Select(_ => Console.ReadKey());
 
-                Observable
-                    .Interval(TimeSpan.FromSeconds(0.5))
-                    .Select(_ => new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() })
-                    .TakeUntil(key_pressed)
-                    .Subscribe(item => queue.Enqueue(item));
-                Console.WriteLine("Press any key to stop producing");
-            });
+                    Observable
+                        .Interval(TimeSpan.FromSeconds(0.5))
+                        .Select(_ => new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() })
+                        .TakeUntil(key_pressed)
+                        .Subscribe(item => queue.Enqueue(item));
+                    Console.WriteLine("Press any key to stop producing");
+                });
 
-            // consume with a timeout
-            queue
-                .ToObservableItems(
-                    sleep_for: TimeSpan.FromMilliseconds(10),
-                    max_wait: TimeSpan.FromSeconds(2)
-                )
-                .Subscribe(
-                    x => Console.WriteLine($"{x.WorkId}"),
-                    e => Console.Error.WriteLine(e),
-                    () => Console.WriteLine("No more items")
-                );
+                // consume with a timeout
+                queue
+                    .ToObservableItems(
+                        sleep_for: TimeSpan.FromSeconds(0.3),
+                        max_wait: TimeSpan.FromSeconds(1)
+                    )
+                    .Subscribe(
+                        x => Console.WriteLine($"{x.WorkId}"),
+                        e => Console.Error.WriteLine(e),
+                        () => Console.WriteLine("No more items")
+                    );
+            }
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using DiskQueue;
+using System;
 
 namespace persistentrx_test
 {
-    class PersistentQueueWrapper<T> : IQueue<T> where T : class
+    class PersistentQueueWrapper<T> : IDisposable, IQueue<T> where T : class
     {
         readonly IPersistentQueue queue;
 
@@ -29,5 +30,29 @@ namespace persistentrx_test
                 session.Flush();
             }
         }
+
+        #region IDisposable Support
+        bool disposedValue; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    queue?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+        }
+        #endregion
     }
 }

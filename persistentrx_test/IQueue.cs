@@ -11,5 +11,4 @@ namespace persistentrx_test
         void Enqueue(T item);
         T Dequeue();
     }
-
 }
