@@ -33,3 +33,11 @@ using (var queue = new PersistentQueueWrapper<WorkItem>("q1")) {
 131473231921304305
 No more items
 ```
+
+Using
+-----
+
+* [DiskQueue](https://github.com/i-e-b/DiskQueue) for persistent queue
+* [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) for serialization
+
+later, using [sharpqueue](https://github.com/sharptools/sharpqueue)
