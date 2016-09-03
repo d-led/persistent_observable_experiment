@@ -51,5 +51,51 @@ namespace persistentrx_test
                 }
             });
         }
+
+        public static IObservable<T> Persistent<T>(this IObservable<T> source, IQueue<T> queue, TimeSpan sleep_for)
+        {
+            bool still_listening = true;
+            Exception thrown = null;
+
+            var subscription = source.Subscribe(
+                item => queue.Enqueue(item),
+                e => thrown = e,
+                () => still_listening = false
+            );
+
+            var observable = Observable.Create<T>(observer =>
+            {
+                var sw = new Stopwatch();
+                sw.Start();
+
+                while (still_listening)
+                {
+                    if (thrown!=null)
+                    {
+                        observer.OnError(thrown);
+                        return Disposable.Empty;
+                    }
+
+                    try
+                    {
+                        var item = queue.Dequeue();
+                        observer.OnNext(item);
+                        sw.Restart();
+                    }
+
+                    catch (NoElementsInQueueException)
+                    {
+                        Thread.Sleep(sleep_for);
+                        continue;
+                    }
+                }
+
+                subscription.Dispose();
+                observer.OnCompleted();
+                return Disposable.Empty;
+            });
+
+            return observable;
+        }
     }
 }

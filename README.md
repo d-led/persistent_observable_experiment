@@ -1,5 +1,8 @@
 # Durable queues as IObservables experiment for fun
 
+Queue to IObservable
+====================
+
 ```c#
 // create a queue
 using (var queue = new PersistentQueueWrapper<WorkItem>("q1")) {
@@ -34,8 +37,35 @@ using (var queue = new PersistentQueueWrapper<WorkItem>("q1")) {
 No more items
 ```
 
+Making IObservable durable
+==========================
+
+```c#
+// post some items
+using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+{
+  Observable
+    .Range(0, 2)
+    .Select(_ => NewWorkItem())
+    .Persistent(queue, TimeSpan.FromMilliseconds(0));
+}
+
+// post some more items and observe the previously enqueued ones
+using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+{
+  Observable
+    .Interval(TimeSpan.FromSeconds(1))
+    .Take(3)
+    .Select(_ => NewWorkItem())
+    .Persistent(queue, TimeSpan.FromMilliseconds(100))
+    .Subscribe(item => Console.WriteLine(item.WorkId))
+  ;
+}
+```
+
+
 Using
------
+=====
 
 * [DiskQueue](https://github.com/i-e-b/DiskQueue) for persistent queue
 * [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) for serialization

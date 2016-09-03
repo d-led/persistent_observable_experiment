@@ -16,7 +16,8 @@ namespace persistentrx_test
             try
             {
                 Example();
-                Run();
+                QueueAsObservableExample();
+                DurableObservableExample();
             }
             catch (Exception e)
             {
@@ -24,16 +25,47 @@ namespace persistentrx_test
             }
         }
 
+        static void DurableObservableExample()
+        {
+            PrintTitle(nameof(DurableObservableExample));
+            // post some items
+            using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+            {
+                Observable
+                    .Range(0, 2)
+                    .Select(_ => NewWorkItem())
+                    .Persistent(queue, TimeSpan.FromMilliseconds(0));
+            }
+
+            // post some more items and observe the previously enqueued ones
+            using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+            {
+                Observable
+                    .Interval(TimeSpan.FromSeconds(1))
+                    .Take(3)
+                    .Select(_ => NewWorkItem())
+                    .Persistent(queue, TimeSpan.FromMilliseconds(100))
+                    .Subscribe(item => Console.WriteLine(item.WorkId))
+                    ;
+            }
+        }
+
+        static void PrintTitle(string title)
+        {
+            Console.WriteLine($"----{title}----");
+        }
+
         static void Example()
         {
-            using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+            PrintTitle(nameof(Example));
+            using (var queue = new PersistentQueueWrapper<WorkItem>("q2"))
             {
                 queue.Enqueue(new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() });
             }
 
-            using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+            using (var queue = new PersistentQueueWrapper<WorkItem>("q2"))
             {
-                queue.Enqueue(new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() });
+                queue.Enqueue(NewWorkItem());
                 queue
                    .ToObservableItems(
                        sleep_for: TimeSpan.FromSeconds(0.3),
@@ -47,21 +79,23 @@ namespace persistentrx_test
             }
         }
 
-        static void Run()
+        static WorkItem NewWorkItem()
         {
-            using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
+            return new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() };
+        }
+
+        static void QueueAsObservableExample()
+        {
+            PrintTitle(nameof(QueueAsObservableExample));
+            using (var queue = new PersistentQueueWrapper<WorkItem>("q3"))
             {
                 // produce some in the background
                 Task.Run(() =>
                 {
-                    var key_pressed = Observable
-                        .Timer(TimeSpan.FromSeconds(1))
-                        .Select(_ => Console.ReadKey());
-
                     Observable
                         .Interval(TimeSpan.FromSeconds(0.5))
                         .Select(_ => new WorkItem { WorkId = DateTime.Now.ToFileTimeUtc() })
-                        .TakeUntil(key_pressed)
+                        .Take(5)
                         .Subscribe(item => queue.Enqueue(item));
                     Console.WriteLine("Press any key to stop producing");
                 });
