@@ -3,7 +3,7 @@ using System;
 
 namespace persistentrx_test
 {
-    class PersistentQueueWrapper<T> : IDisposable, IQueue<T> where T : class
+    class PersistentQueueWrapper<T> : IDisposable, IQueue<T> 
     {
         readonly IPersistentQueue queue;
 
@@ -17,6 +17,8 @@ namespace persistentrx_test
             using (var session = queue.OpenSession())
             {
                 var bytes = session.Dequeue();
+                if (bytes == null)
+                    throw new NoElementsInQueueException();
                 session.Flush();
                 return bytes.FromBytes<T>();
             }

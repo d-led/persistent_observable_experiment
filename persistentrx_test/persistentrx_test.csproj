@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IQueue.cs" />
+    <Compile Include="NoElementsInQueue.cs" />
     <Compile Include="PersistentQueueExtensions.cs" />
     <Compile Include="PersistentQueueWrapper.cs" />
     <Compile Include="Program.cs" />

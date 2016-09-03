@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace persistentrx_test
 {
-    public class WorkItem
+    public struct WorkItem
     {
         public long WorkId { get; set; }
     }

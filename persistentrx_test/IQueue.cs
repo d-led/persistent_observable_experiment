@@ -1,6 +1,6 @@
 ﻿namespace persistentrx_test
 {
-    public interface IQueue<T> where T : class
+    public interface IQueue<T>
     {
         void Enqueue(T item);
         T Dequeue();
