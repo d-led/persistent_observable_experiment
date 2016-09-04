@@ -71,3 +71,9 @@ Using
 * [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) for serialization
 
 later, using [sharpqueue](https://github.com/sharptools/sharpqueue)
+
+Ideas
+=====
+
+* Hide the queue lifetime from the observables
+* Use another queue as example
