@@ -1,0 +1,17 @@
+language: csharp
+mono: none
+dotnet: 3.1
+dist: xenial
+osx_image: xcode11.2
+sudo: required
+
+services:
+  - docker
+
+os:
+  - linux
+  - osx
+
+script:
+  - dotnet run
+  - ./build_run_docker.sh
