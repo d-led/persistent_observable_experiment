@@ -1,5 +1,8 @@
 # Durable queues as IObservables experiment for fun
 
+[![Build status](https://ci.appveyor.com/api/projects/status/l82q9ukingqcb4j9/branch/master?svg=true)](https://ci.appveyor.com/project/d-led/persistent-observable-experiment/branch/master)
+[![Build Status](https://travis-ci.org/d-led/persistent_observable_experiment.svg?branch=master)](https://travis-ci.org/d-led/persistent_observable_experiment)
+
 Queue to IObservable
 ====================
 
