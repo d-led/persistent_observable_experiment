@@ -2,8 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/l82q9ukingqcb4j9/branch/master?svg=true)](https://ci.appveyor.com/project/d-led/persistent-observable-experiment/branch/master)
 
-Queue to IObservable
-====================
+## Queue to IObservable
 
 ```c#
 // create a queue
@@ -33,14 +32,13 @@ using (var queue = new PersistentQueueWrapper<WorkItem>("q1")) {
 
 &darr;
 
-```
+```text
 131473231919577487
 131473231921304305
 No more items
 ```
 
-Making IObservable durable
-==========================
+## Making IObservable durable
 
 ```c#
 // post some items
@@ -65,17 +63,14 @@ using (var queue = new PersistentQueueWrapper<WorkItem>("q1"))
 }
 ```
 
-
-Using
-=====
+## Using
 
 * [DiskQueue](https://github.com/i-e-b/DiskQueue) for persistent queue
 * [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) for serialization
 
 later, using [sharpqueue](https://github.com/sharptools/sharpqueue)
 
-Ideas
-=====
+## Ideas
 
 * Hide the queue lifetime from the observables
 * Use another queue as example
